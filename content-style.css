@@ -1,0 +1,7 @@
+/* * {
+    box-sizing: border-box;
+} */
+
+.focused_elem {
+   outline: 3px solid orange !important;
+}
