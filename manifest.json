@@ -4,18 +4,16 @@
    "version": "1.0.0",
    "description": "Narrow down your search results to the sites you want",
    "permissions": [
-      "scripting",
       "search",
-      "storage",
-      "tabs"
+      "storage"
    ],
    "host_permissions": [
-      "<all_urls>"
+      "*://*/*"
    ],
    "content_scripts": [
       {
          "matches": [
-            "<all_urls>"
+            "*://*/*"
          ],
          "run_at": "document_idle",
          "js": [
@@ -30,7 +28,7 @@
       "service_worker": "background.js"
    },
    "action": {
-      "default_title": "NarrowD Ctrl + Shift + Space",
+      "default_title": "NarrowD",
       "default_popup": "popup.html",
       "default_icon": {
          "16": "unliked_16.png",

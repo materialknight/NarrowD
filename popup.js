@@ -32,17 +32,24 @@ const RENDER_sites = () => {
 const DELETE_site = (id) => {
    sites.splice(Number(id), 1)
    chrome.storage.local.set({ sites })
+
+   chrome.tabs
+      .query({ active: true, currentWindow: true })
+      .then(tabs => chrome.action.setIcon({ path: './unliked_16.png', tabId: tabs[0].id }))
+
+
 }
 const ADD_site = () => {
    chrome.tabs
       .query({ active: true, currentWindow: true })
       .then(tabs => {
-         const { favIconUrl, url } = tabs[0]
+         const { favIconUrl, url, id } = tabs[0]
          const { hostname } = new URL(url)
          const site = { favIconUrl, hostname }
 
          sites.push(site)
          chrome.storage.local.set({ sites })
+         chrome.action.setIcon({ path: './liked_16.png', tabId: id })
       })
 }
 const HANDLE_click = (event) => {

@@ -5,7 +5,6 @@ const GET_storage = () => {
       .get('sites')
       .then(response => {
          sites = response.sites ?? []
-         console.log('GET_storage sites:', sites)
       })
 }
 
@@ -41,9 +40,9 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
       new_Hostname = new URL(new_Hostname)
       new_Hostname = new_Hostname.hostname
 
-      const condition = sites.some(site => site.hostname === new_Hostname)
+      const current_Site_Is_Already_Liked = sites.some(site => site.hostname === new_Hostname)
 
-      if (condition) {
+      if (current_Site_Is_Already_Liked) {
          chrome.action.setIcon({ path: './liked_16.png', tabId })
          URL_state = 'liked'
       } else {

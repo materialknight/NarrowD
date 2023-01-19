@@ -1,5 +1,4 @@
 'use strict'
-console.log("I'm content-script.js")
 
 //! Undocumented fact 1: You can't use chrome.search in a content script.
 
@@ -17,8 +16,7 @@ console.log("I'm content-script.js")
 
 //* FUNCTIONS:
 
-//TODO: Fix bug of li elems not being de-styled:
-//TODO: Make the 'Home' key take you to the beginning of line (apparently not all sites do that...)
+//TODO: Make the 'Home' key take you to the beginning of line in a search bar (apparently not all sites do that...)
 
 const FIND_search_inputs = event => {
    const all_elems = Array.from(document.querySelectorAll('*'))
@@ -66,7 +64,7 @@ const FIND_search_inputs = event => {
       focused_elem.select()
    }
 
-   //! Apparently provokes unsafe eval error in w3schools:
+   //! The line commented out below apparently provokes unsafe eval error in w3schools:
 
    // input_elems[i].click()
 
