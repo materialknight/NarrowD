@@ -83,7 +83,7 @@ const SEARCH_in_list = () => {
 
       ticked_Sites.forEach((site, i) => {
          search_str += `site:${site.hostname}`
-         if (i < sites.length - 1) {
+         if (i < ticked_Sites.length - 1) {
             search_str += ' | '
          } else {
             search_str += ')'
