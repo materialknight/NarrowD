@@ -30,8 +30,6 @@ chrome.commands.onCommand.addListener((command, tab) => {
 
 chrome.storage.onChanged.addListener(GET_storage)
 
-// chrome.action.setIcon({ path: './opaque_active_48.png' })
-
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
    if (changeInfo.url !== undefined) {
