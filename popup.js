@@ -9,20 +9,24 @@ const RENDER_sites = () => {
          const sites_ol = document.createElement('ol')
 
          sites.forEach((site, i) => {
-            const { favIconUrl, hostname } = site
+            const { favIconUrl, hostname, checked } = site
             const shorter_hostname = hostname.includes('www.')
                ? hostname.slice(4)
                : hostname
 
+            //! Trying to assign false to the boolean attribute 'checked' will make it true!
             sites_ol.insertAdjacentHTML(
                'beforeend',
-               `<li>
-                    <img src='${favIconUrl}' alt='favicon of ${shorter_hostname}'>
-                    <a href='https://${hostname}' target='_blank'>${shorter_hostname}</a>
-                    <button type='button' id='${i}' name='delete_btn' class='material-symbols-outlined' title='Delete from Liked Sites'>
-                    delete
-                    </button>
-                    </li>`
+               `<li id='${i}'>
+                  <input type='checkbox' ${checked ? 'checked' : ''}>
+                  <a href='https://${hostname}' target='_blank'>
+                     <img src='${favIconUrl}' alt='favicon of ${shorter_hostname}'>
+                     <span>${shorter_hostname}</span></a>
+                  <button type='button' name='delete_btn' class='material-symbols-outlined'
+                  title='Delete from Liked Sites'>
+                  delete
+               </button>
+               </li>`
             )
          })
          list_section.querySelector('ol')?.remove()
@@ -31,7 +35,9 @@ const RENDER_sites = () => {
 }
 const DELETE_site = (id) => {
    sites.splice(Number(id), 1)
-   chrome.storage.local.set({ sites })
+   chrome.storage.local
+      .set({ sites })
+      .then(RENDER_sites)
 
    chrome.tabs
       .query({ active: true, currentWindow: true })
@@ -45,17 +51,19 @@ const ADD_site = () => {
       .then(tabs => {
          const { favIconUrl, url, id } = tabs[0]
          const { hostname } = new URL(url)
-         const site = { favIconUrl, hostname }
+         const site = { favIconUrl, hostname, checked: true }
 
          sites.push(site)
-         chrome.storage.local.set({ sites })
+         chrome.storage.local
+            .set({ sites })
+            .then(RENDER_sites)
          chrome.action.setIcon({ path: './liked_16.png', tabId: id })
       })
 }
 const HANDLE_click = (event) => {
    switch (event.target.name) {
       case 'delete_btn':
-         DELETE_site(event.target.id)
+         DELETE_site(event.target.parentElement.id)
          break
       case 'like_btn':
          ADD_site()
@@ -68,12 +76,14 @@ const HANDLE_click = (event) => {
 const SEARCH_in_list = () => {
 
    let search_str = `"${search_input.value}"`
+   const ticked_Sites = sites.filter(site => site.checked === true)
 
-   if (sites.length > 0) {
+   if (ticked_Sites.length > 0) {
       search_str += ' ('
-      sites.forEach((site, i) => {
+
+      ticked_Sites.forEach((site, i) => {
          search_str += `site:${site.hostname}`
-         if (i < sites.length - 1) {
+         if (i < ticked_Sites.length - 1) {
             search_str += ' | '
          } else {
             search_str += ')'
@@ -90,33 +100,40 @@ const SEARCH_in_list = () => {
    //* intitle:"console.warn" (site:www.w3schools.com OR site:developer.mozilla.org OR site:www.tutorialspoint.com OR site:javascript.info OR site:www.javascripttutorial.net)
    //* CURRENTLY IN USE:
    //* "console.warn" (site:www.w3schools.com | site:developer.mozilla.org site:www.tutorialspoint.com | site:javascript.info | site:www.javascripttutorial.net)
-
-   //TODO: Confirm whether Bing (and others) only use the 1st 10 terms.
 }
 
 //* GLOBAL VARIABLES:
 
 const search_input = document.querySelector('[type=search]')
-
 const search_in_liked_sites_btn = document.querySelector('[name=search_in_liked_sites_btn]')
-// const strict_search_btn = document.getElementById('strict_search_btn')
-// const very_strict_search_btn = document.getElementById('very_strict_search_btn')
 const list_section = document.getElementById('list_section')
 let sites = null
-// const current_storage = await chrome.storage.local.get(null)
+
+//* ACTION :
+
+RENDER_sites()
 
 //* EVENT LISTENERS :
 
-chrome.storage.onChanged.addListener(RENDER_sites)
+// chrome.storage.onChanged.addListener(RENDER_sites)
 
 addEventListener('click', HANDLE_click, { passive: true })
 
 search_input.addEventListener('keydown', event => {
+   //TODO: add more shortcuts.
+
    if (event.key === 'Enter') {
       search_in_liked_sites_btn.click()
    }
 }, { passive: true })
 
-//* ACTION :
+addEventListener('change', event => {
+   const input_Elem = event.target
 
-RENDER_sites()
+   if (input_Elem.type === 'checkbox') {
+      sites[input_Elem.parentElement.id].checked = input_Elem.checked
+      chrome.storage.local.set({ sites })
+   }
+}, { passive: true })
+
+//TODO: Fix occassional harmless bug in which 'sites' is null when calling sites.some().
